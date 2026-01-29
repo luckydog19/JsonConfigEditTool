@@ -21,7 +21,7 @@ SET Judge_ProcessHandleDeviceAutoContrbands=true
 
 REM Tool and config paths
 SET TOOL_EXE=C:\NISServer\DB\JsonEditTool.exe
-SET TOOL_SRC=d:\Demo\JsonEditTool
+SET TOOL_SRC=D:\Demo\JsonConfigEditTool
 SET CONFIG=C:\NISServer\config.json
 SET KEY=Judge/ProcessHandleDeviceAutoContrbands
 

@@ -36,9 +36,9 @@ if not exist "%TOOL%" (
     echo [WARNING] Tool not found at: %TOOL%
     echo [INFO] Using Python version instead...
     REM Change to project directory first
-    cd /d "d:\Demo\JsonEditTool"
+    cd /d "D:\Demo\JsonConfigEditTool"
     SET TOOL=python src\main.py
-    echo [INFO] Changed to project directory: d:\Demo\JsonEditTool
+    echo [INFO] Changed to project directory: D:\Demo\JsonConfigEditTool
 )
 echo [OK] Tool: %TOOL%
 echo.

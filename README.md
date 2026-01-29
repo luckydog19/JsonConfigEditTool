@@ -1,267 +1,406 @@
-# JSON配置文件修改工具
+# JsonEditTool - JSON 配置文件编辑工具
 
-一个Windows平台下的JSON配置文件修改工具，支持通过BAT脚本调用，实现配置项的增删改操作。
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](CHANGELOG.md)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## 功能特性
+一个强大而灵活的命令行工具，用于快速修改 JSON 配置文件，特别适合批处理脚本和自动化部署场景。
 
-✅ **灵活的路径支持**
-- 绝对路径：`D:\App\config.json`
-- 相对路径：`.\configs\app.json`
-- 网络路径：`\\server\share\config.json`
-- 环境变量：`%APPDATA%\config.json`
+## ✨ 主要特性
 
-✅ **完整的CRUD操作**
-- 修改配置项（update）
-- 添加配置项（add）
-- 删除配置项（delete）
+- 🎯 **简单易用** - 命令行操作，支持增删改
+- 🔧 **灵活扩展** - 支持添加任意自定义字段（v1.1新增）
+- 📁 **双格式支持** - 同时支持数组格式和对象格式的JSON
+- 🌍 **多路径支持** - 相对路径、绝对路径、网络路径、环境变量路径
+- 🔄 **自动类型推断** - 智能识别字符串、数字、布尔值
+- 🔇 **静默模式** - 默认静默执行，适合批处理脚本
+- 📝 **完整日志** - 所有操作记录到日志文件
+- 🌐 **中文友好** - 完整支持中文路径和中文内容
 
-✅ **智能功能**
-- 自动类型推断（数字、布尔、字符串）
-- 支持嵌套路径（如：`server.port`）
-- 同时修改value和_comment
-- 完善的错误日志记录
+## 🚀 快速开始
 
-✅ **易于使用**
-- 命令行工具，简单易用
-- 打包成单个exe文件
-- 无需安装Python环境
+### 安装
 
-## 快速开始
-
-### 1. 使用预编译的exe文件
-
-```batch
-REM 修改配置
-JsonEditTool.exe update config.json server.port --value 8080 --comment "服务器端口"
-
-REM 添加配置
-JsonEditTool.exe add config.json cache.enabled --value true --comment "启用缓存"
-
-REM 删除配置
-JsonEditTool.exe delete config.json old.setting
+#### 方式1：使用编译好的 EXE（推荐）
+```bash
+# 1. 下载 dist\JsonEditTool.exe
+# 2. 将其放到任意目录或添加到系统 PATH
+# 3. 直接使用
+JsonEditTool.exe --help
 ```
 
-### 2. 从源码运行
+#### 方式2：从源码构建
+```bash
+# 克隆或下载项目
+cd D:\Demo\JsonConfigEditTool
 
-```batch
-REM 安装依赖（仅打包时需要）
+# 安装依赖（仅Python运行时需要）
 pip install -r requirements.txt
 
-REM 运行工具
-python src\main.py update config.json server.port --value 8080
-```
-
-### 3. 打包成exe
-
-```batch
-REM 执行打包脚本
+# 构建EXE
 build.bat
-
-REM 生成的exe位于 dist\JsonEditTool.exe
 ```
 
-## 使用说明
+### 基本用法
 
-### 命令格式
+```bash
+# 修改配置项
+JsonEditTool.exe update config.json server.port --value 8080 --comment "服务器端口"
 
-```
-JsonEditTool.exe <操作类型> <JSON文件路径> <key> [选项]
-```
+# 添加配置项
+JsonEditTool.exe add config.json cache.enabled --value true --comment "启用缓存"
 
-### 参数说明
+# 添加带额外字段的配置项（v1.1新增）
+JsonEditTool.exe add config.json api.timeout --value 30 ^
+    --extra type=int ^
+    --extra unit=seconds ^
+    --extra required=true
 
-| 参数 | 说明 | 必需 |
-|------|------|------|
-| 操作类型 | update/add/delete | 是 |
-| JSON文件路径 | 配置文件路径 | 是 |
-| key | 配置项键名（支持点分路径） | 是 |
-| --value | 配置项的值 | update/add时必需 |
-| --comment | 配置项的注释 | 否 |
-| --encoding | 文件编码（默认utf-8） | 否 |
-| --indent | JSON缩进（默认4） | 否 |
-| --backup | 修改前创建备份 | 否 |
-
-### 操作示例
-
-#### 1. 修改配置项
-
-```batch
-REM 基本用法
-JsonEditTool.exe update config.json server.port --value 8080
-
-REM 带注释
-JsonEditTool.exe update config.json server.host --value "0.0.0.0" --comment "监听所有网卡"
-
-REM 绝对路径
-JsonEditTool.exe update "D:\App\config.json" database.host --value "192.168.1.100"
-
-REM 网络路径
-JsonEditTool.exe update "\\server\share\prod.json" api.key --value "abc123"
+# 删除配置项
+JsonEditTool.exe delete config.json old.key
 ```
 
-#### 2. 添加配置项
+## 📖 核心功能
 
-```batch
-REM 添加简单配置
-JsonEditTool.exe add config.json cache.ttl --value 3600 --comment "缓存过期时间"
+### 1. Update - 修改配置项
 
-REM 添加嵌套配置
-JsonEditTool.exe add config.json database.pool.maxSize --value 100 --comment "最大连接数"
+修改现有配置项的值和注释。
+
+```bash
+# 基本用法
+JsonEditTool.exe update config.json server.port --value 9000
+
+# 修改值和注释
+JsonEditTool.exe update config.json db.host --value "192.168.1.100" --comment "数据库地址"
+
+# 支持点分路径（对象格式）
+JsonEditTool.exe update config.json server.database.pool --value 20
+
+# 支持斜杠分隔（数组格式）
+JsonEditTool.exe update config.json "Judge/ProcessHandle" --value true
 ```
 
-#### 3. 删除配置项
+### 2. Add - 添加配置项
 
-```batch
-REM 删除配置
-JsonEditTool.exe delete config.json temp.data
+添加新的配置项到JSON文件。
 
-REM 删除嵌套配置
-JsonEditTool.exe delete config.json server.debug.enabled
+```bash
+# 基本添加
+JsonEditTool.exe add config.json new.feature --value true --comment "新功能开关"
+
+# 添加带额外字段（v1.1新增）
+JsonEditTool.exe add config.json db.pool --value 10 ^
+    --comment "连接池大小" ^
+    --extra min=5 ^
+    --extra max=20 ^
+    --extra type=mysql
 ```
 
-### BAT脚本示例
-
-#### 单文件修改
-
-```batch
-@echo off
-set TOOL=D:\Tools\JsonEditTool.exe
-set CONFIG=D:\App\config.json
-
-%TOOL% update "%CONFIG%" server.port --value 8080
-if %ERRORLEVEL% EQU 0 (
-    echo 配置修改成功
-) else (
-    echo 配置修改失败
-    exit /b 1
-)
-```
-
-#### 批量修改多个文件
-
-```batch
-@echo off
-set TOOL=JsonEditTool.exe
-
-REM 修改Web应用配置
-%TOOL% update "D:\WebApp\config.json" server.port --value 8080
-echo [1/3] Web应用配置完成
-
-REM 修改API服务配置
-%TOOL% update "E:\API\settings.json" api.timeout --value 30
-echo [2/3] API服务配置完成
-
-REM 修改数据库配置
-%TOOL% update "C:\DB\config.json" db.maxConn --value 100
-echo [3/3] 数据库配置完成
-
-echo 所有配置更新完成！
-pause
-```
-
-## JSON配置文件格式
-
-工具支持标准的JSON配置格式：
-
+**生成的JSON：**
 ```json
 {
-  "server": {
-    "port": {
-      "key": "port",
-      "value": 8080,
-      "_comment": "服务器监听端口"
-    },
-    "host": {
-      "key": "host",
-      "value": "localhost",
-      "_comment": "服务器地址"
+    "db": {
+        "pool": {
+            "key": "pool",
+            "value": 10,
+            "_comment": "连接池大小",
+            "min": 5,
+            "max": 20,
+            "type": "mysql"
+        }
     }
-  }
 }
 ```
 
-使用点分路径访问：`server.port` 会定位到 `{"key": "port", "value": 8080, "_comment": "..."}`
+### 3. Delete - 删除配置项
 
-## 错误代码
+从JSON文件中删除配置项。
+
+```bash
+JsonEditTool.exe delete config.json old.setting
+```
+
+## 🎯 高级功能
+
+### 额外字段支持（v1.1新增）
+
+使用 `--extra` 参数可以为配置项添加任意自定义字段，不再局限于 `key`、`value`、`_comment`。
+
+```bash
+# 添加元数据
+JsonEditTool.exe add config.json api.endpoint --value "https://api.example.com" ^
+    --comment "API端点" ^
+    --extra timeout=30 ^
+    --extra retry=3 ^
+    --extra auth=required ^
+    --extra version=v2
+
+# 添加功能开关
+JsonEditTool.exe add features.json payment.alipay --value true ^
+    --comment "支付宝支付" ^
+    --extra feature_name=alipay ^
+    --extra since=2026-01-01 ^
+    --extra experimental=false
+
+# 数组格式也支持额外字段
+JsonEditTool.exe add config.json "Feature/NewModule" --value true ^
+    --extra module=feature ^
+    --extra priority=high
+```
+
+**详细文档：** [EXTRA_FIELDS_GUIDE.md](EXTRA_FIELDS_GUIDE.md)
+
+### 静默模式
+
+v1.1版本默认启用静默模式，不输出INFO日志到控制台，适合批处理脚本。
+
+```bash
+# 默认静默执行（无控制台输出）
+JsonEditTool.exe update config.json key --value value
+
+# 需要查看详细日志时
+JsonEditTool.exe update config.json key --value value --verbose
+```
+
+### 路径支持
+
+```bash
+# 相对路径
+JsonEditTool.exe update config.json key --value value
+
+# 绝对路径
+JsonEditTool.exe update "D:\MyApp\config.json" key --value value
+
+# 网络路径
+JsonEditTool.exe update "\\server\share\config.json" key --value value
+
+# 环境变量路径
+JsonEditTool.exe update "%APPDATA%\MyApp\settings.json" key --value value
+```
+
+### 数据类型推断
+
+工具会自动推断值的类型：
+
+```bash
+# 整数
+--value 123          → 123 (int)
+
+# 浮点数
+--value 3.14         → 3.14 (float)
+
+# 布尔值
+--value true         → true (bool)
+--value false        → false (bool)
+
+# 字符串
+--value "hello"      → "hello" (string)
+```
+
+### 备份功能
+
+```bash
+# 修改前自动创建备份
+JsonEditTool.exe update config.json key --value value --backup
+```
+
+## 📋 命令行参数
+
+### 通用参数
+
+| 参数 | 说明 | 示例 |
+|------|------|------|
+| `--value` | 配置项的值（update/add必需） | `--value 8080` |
+| `--comment` | 配置项的注释 | `--comment "端口号"` |
+| `--extra` | 额外字段（可多次使用） | `--extra type=int` |
+| `--encoding` | 文件编码（默认utf-8） | `--encoding gbk` |
+| `--indent` | JSON缩进空格数（默认4） | `--indent 2` |
+| `--backup` | 修改前创建备份 | `--backup` |
+| `--silent` | 静默模式（默认启用） | `--silent` |
+| `--verbose` | 详细模式（显示日志） | `--verbose` |
+| `--version` | 显示版本信息 | `--version` |
+| `--help` | 显示帮助信息 | `--help` |
+
+## 📦 批处理脚本示例
+
+### 简单示例
+
+```batch
+@echo off
+SET TOOL=JsonEditTool.exe
+SET CONFIG=C:\MyApp\config.json
+
+REM 更新服务器配置
+%TOOL% update %CONFIG% server.port --value 8080 --comment "Web端口"
+%TOOL% update %CONFIG% server.host --value "0.0.0.0" --comment "监听地址"
+
+REM 启用功能
+%TOOL% update %CONFIG% features.cache --value true --comment "启用缓存"
+
+echo 配置更新完成！
+pause
+```
+
+### 带错误处理的示例
+
+```batch
+@echo off
+chcp 65001 >nul
+setlocal EnableDelayedExpansion
+
+SET TOOL=JsonEditTool.exe
+SET CONFIG=C:\MyApp\config.json
+
+echo 开始更新配置...
+
+REM 更新端口
+%TOOL% update %CONFIG% server.port --value 9000
+if !ERRORLEVEL! NEQ 0 (
+    echo [错误] 更新端口失败
+    pause
+    exit /b 1
+)
+
+REM 添加新配置（带额外字段）
+%TOOL% add %CONFIG% api.timeout --value 30 ^
+    --extra type=int ^
+    --extra unit=seconds
+
+if !ERRORLEVEL! NEQ 0 (
+    echo [错误] 添加配置失败
+    pause
+    exit /b 1
+)
+
+echo [成功] 所有配置更新完成！
+pause
+```
+
+## 🔧 JSON 格式支持
+
+### 对象格式（Object Format）
+
+```json
+{
+    "server": {
+        "port": {
+            "key": "port",
+            "value": 8080,
+            "_comment": "服务器端口"
+        }
+    }
+}
+```
+
+**使用点分路径：**
+```bash
+JsonEditTool.exe update config.json server.port --value 9000
+```
+
+### 数组格式（Array Format）
+
+```json
+[
+    {
+        "key": "Judge/ProcessHandle",
+        "value": true,
+        "_comment": "处理开关"
+    }
+]
+```
+
+**使用斜杠分隔：**
+```bash
+JsonEditTool.exe update config.json "Judge/ProcessHandle" --value false
+```
+
+## 📝 日志
+
+所有操作都会记录到日志文件：
+
+```
+工具所在目录\jsonedittoollogs\json_edit_tool_YYYYMMDD.log
+```
+
+日志内容包括：
+- 操作时间和类型
+- 文件路径
+- 修改的键值
+- 操作结果
+- 错误信息（如有）
+
+## 🐛 错误代码
 
 | 代码 | 说明 |
 |------|------|
-| 0 | 操作成功 |
+| 0 | 成功 |
 | 1 | 文件不存在 |
 | 2 | JSON格式错误 |
 | 3 | 编码错误 |
-| 4 | Key不存在 |
-| 5 | 参数验证失败 |
+| 4 | 键不存在 |
+| 5 | 参数无效 |
 | 6 | 权限不足 |
-| 7 | 添加已存在的key |
-| 8 | 无效路径 |
-| 9 | 盘符不存在 |
-| 10 | 网络路径不可达 |
+| 7 | 键已存在（add操作） |
+| 99 | 未知错误 |
 
-## 日志
+## 📚 相关文档
 
-工具会在运行目录下的`logs`文件夹中生成日志文件：
+- [CHANGELOG.md](CHANGELOG.md) - 版本更新记录
+- [EXTRA_FIELDS_GUIDE.md](EXTRA_FIELDS_GUIDE.md) - 额外字段功能详细指南
+- [DESIGN.md](DESIGN.md) - 设计文档
+- [examples/](examples/) - 示例脚本集合
 
-```
-logs/
-  └── json_edit_tool_20260128.log
-```
+## 🔄 版本历史
 
-日志包含所有操作记录、错误信息和堆栈跟踪。
+### v1.1.0 (2026-01-29) - 当前版本
+- ✨ 新增 `--extra` 参数支持任意额外字段
+- ✨ 默认启用静默模式
+- 🐛 修复 logger 初始化问题
+- 📝 完善文档和示例
 
-## 测试
+### v1.0.0 (2026-01-28)
+- 🎉 初始版本发布
+- ✅ 支持 update/add/delete 操作
+- ✅ 支持双格式 JSON
+- ✅ 支持多种路径类型
 
-运行单元测试：
+**完整更新日志：** [CHANGELOG.md](CHANGELOG.md)
 
-```batch
-REM 安装测试依赖
-pip install pytest pytest-cov
+## 💡 使用技巧
 
-REM 运行测试
-pytest tests/
+1. **变量使用**：BAT脚本中使用变量时，不要在赋值时加引号
+   ```batch
+   SET VALUE=true           # ✅ 正确
+   SET VALUE="true"         # ❌ 错误
+   ```
 
-REM 查看覆盖率
-pytest tests/ --cov=src --cov-report=html
-```
+2. **包含空格的值**：使用时加引号
+   ```batch
+   --comment "%COMMENT%"    # ✅ 正确
+   ```
 
-## 项目结构
+3. **路径包含空格**：整个路径加引号
+   ```batch
+   JsonEditTool.exe update "D:\My App\config.json" key --value value
+   ```
 
-```
-JsonEditTool/
-├── src/
-│   ├── __init__.py
-│   ├── main.py              # 主程序入口
-│   ├── json_editor.py       # JSON编辑核心
-│   ├── logger.py            # 日志模块
-│   └── validator.py         # 验证模块
-├── tests/
-│   ├── sample_config.json   # 示例配置
-│   └── test_json_editor.py  # 单元测试
-├── logs/                    # 日志目录
-├── requirements.txt         # 依赖清单
-├── build.bat               # 打包脚本
-└── README.md               # 使用说明
-```
+4. **静默执行**：默认就是静默的，适合自动化脚本
 
-## 技术栈
+## 🤝 贡献
 
-- Python 3.8+
-- 标准库：json, logging, argparse, pathlib
-- 打包工具：PyInstaller
+欢迎提交 Issue 和 Pull Request！
 
-## 许可证
+## 📄 许可证
 
 MIT License
 
-## 更新日志
+## 📞 支持
 
-### v1.0.0 (2026-01-28)
-- ✨ 初始版本发布
-- ✅ 支持增删改操作
-- ✅ 支持多种路径类型
-- ✅ 完整的日志记录
-- ✅ 打包成独立exe
+- 问题反馈：提交 Issue
+- 功能建议：提交 Feature Request
+- 使用帮助：查看文档或提交 Issue
 
-## 联系方式
+---
 
-如有问题或建议，请查看日志文件或联系开发团队。
+**版本**: v1.1.0  
+**更新日期**: 2026-01-29  
+**项目地址**: D:\Demo\JsonConfigEditTool

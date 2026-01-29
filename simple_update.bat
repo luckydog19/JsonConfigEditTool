@@ -26,7 +26,7 @@ if exist "C:\NISServer\DB\JsonEditTool.exe" (
     set OLDDIR=%CD%
     
     REM Change to project directory
-    cd /d "d:\Demo\JsonEditTool"
+    cd /d "D:\Demo\JsonConfigEditTool"
     
     REM Run Python script with --silent flag
     python src\main.py update ^
