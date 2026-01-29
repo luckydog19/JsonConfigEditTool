@@ -1,0 +1,22 @@
+[
+    {
+        "key": "Globle/UseConsul",
+        "value": false,
+        "_comment": "静默模式测试"
+    },
+    {
+        "key": "Globle/ConsulURI",
+        "value": "http://127.0.0.1:8500",
+        "_comment": "Consul服务的访问URI"
+    },
+    {
+        "key": "Globle/SubType",
+        "value": "1",
+        "_comment": "本系统目前用于部门 1-民航；2-海关。用于在一机双屏中默认部门类型"
+    },
+    {
+        "key": "Judge/ProcessHandleDeviceAutoContrbands",
+        "value": false,
+        "_comment": "分组判图没有程处理违禁品关"
+    }
+]
